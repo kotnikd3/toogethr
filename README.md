@@ -1,7 +1,7 @@
 # Parking spot application
 ### About the project
 Full-stack challenge with a time limit of maximum 2 working days (because the customers wait and they want to see the prototype yesterday).  
-Webservice in Python Flask with the web application in Vue.js.    
+Back-end in Python Flask and front-end in Vue.js.    
 Because I am not familiar with using Python for web, this is clearly not ready for a production.  
 
 ### Run in Docker
