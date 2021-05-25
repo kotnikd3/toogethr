@@ -11,7 +11,7 @@ import json
 from API import app
 from service.BusinessLogic import BusinessLogic
 
-BASE = "http://127.0.0.1:5000"
+BASE = "http://localhost:5000"
 
 
 class TestAPI(unittest.TestCase):

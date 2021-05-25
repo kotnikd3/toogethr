@@ -11,6 +11,12 @@ sudo docker-compose up --force-recreate
 ```
 Now visit the application at URL http://localhost:8080
 
+### Run the back-end tests from inside the container
+``` bash
+sudo docker exec -it backend /bin/bash
+python src/Tests.py
+```
+
 ### TODO:
 * make tests independant from each other
 * add real not fake database
