@@ -8,8 +8,6 @@ services:
             dockerfile: Dockerfile
         ports:
             - "5000:5000"
-        networks:
-            - web
     frontend:
         container_name: frontend
         build:
@@ -17,8 +15,5 @@ services:
             dockerfile: Dockerfile
         ports:
             - "8080:8080"
-        networks:
-            - web
-networks:
-    web:
-
+        depends_on:
+            - backend
