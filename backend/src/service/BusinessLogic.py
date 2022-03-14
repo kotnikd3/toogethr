@@ -12,15 +12,16 @@ from db.ParkingSpot import ParkingSpot
 import json
 from datetime import datetime
 
-class BusinessLogic():
+
+class BusinessLogic:
     def __init__(self):
-        self.memoryDatabase = MemoryDatabase()
+        self.memory_database = MemoryDatabase()
 
         self.migrate()
 
-        self.reservationDAO = ReservationDAO(self.memoryDatabase)
-        self.userDAO = UserDAO(self.memoryDatabase)
-        self.parkingSpotDAO = ParkingSpotDAO(self.memoryDatabase)
+        self.reservation_dao = ReservationDAO(self.memory_database)
+        self.user_dao = UserDAO(self.memory_database)
+        self.parking_spot_dao = ParkingSpotDAO(self.memory_database)
 
         self.seed()
     
@@ -28,138 +29,180 @@ class BusinessLogic():
         """
         Create tables in DB.
         """
-        self.memoryDatabase.addTable("reservation")
-        self.memoryDatabase.addTable("parking_spot")
-        self.memoryDatabase.addTable("user")
+        self.memory_database.add_table('reservation')
+        self.memory_database.add_table('parking_spot')
+        self.memory_database.add_table('user')
     
     def seed(self):
         """
         Fill DB with some dummy data.
         """
-        self.userDAO.insert(User(1, "denis", "denis.kotnik@gmail.com"))
-        self.userDAO.insert(User(2, "ted", "ted@toogethr.com.com"))
-        self.userDAO.insert(User(3, "gerard", "gdalmau@toogethr.com"))
+        self.user_dao.insert(User(1, 'denis', 'denis@toogethr.com'))
+        self.user_dao.insert(User(2, 'ted', 'ted@toogethr.com'))
+        self.user_dao.insert(User(3, 'gerard', 'gdalmau@toogethr.com'))
 
         # 20th May 10:00 - 13:00
-        self.reservationDAO.insert(Reservation(1, 1621497600, 1621508400, 1, 1))
+        self.reservation_dao.insert(
+            Reservation(1, 1621497600, 1621508400, 1, 1)
+        )
         # 20th May 14:00 - 16:00
-        self.reservationDAO.insert(Reservation(2, 1621512000, 1621519200, 1, 1))
+        self.reservation_dao.insert(
+            Reservation(2, 1621512000, 1621519200, 1, 1)
+        )
         # 19th May 12:00 - 14:00
-        self.reservationDAO.insert(Reservation(3, 1621418400, 1621425600, 2, 2))
+        self.reservation_dao.insert(
+            Reservation(3, 1621418400, 1621425600, 2, 2)
+        )
 
-        self.parkingSpotDAO.insert(ParkingSpot(1, 14.123, 46.123))
-        self.parkingSpotDAO.insert(ParkingSpot(2, 14.312, 46.321))
+        self.parking_spot_dao.insert(ParkingSpot(1, 14.123, 46.123))
+        self.parking_spot_dao.insert(ParkingSpot(2, 14.312, 46.321))
     
     
-    def getParkingSpotsWithReservations(self):
+    def get_parking_spots_with_reservations(self):
         """
-        Return the info about all the parking spots and all the reservations for each parking spot.
+        Return the info about all the parking spots and all the reservations
+        for each parking spot.
         """
-        parkingSpots = self.parkingSpotDAO.getAll()
+        parking_spots = self.parking_spot_dao.get_all()
 
         result = []
-        for parkingSpot in parkingSpots:
-            bookedReservations = self.reservationDAO.getByParkingSpotId(parkingSpot.id)
-            # Magic of dynamically typed languages :-)
-            parkingSpot.reservations = bookedReservations
-            result.append(parkingSpot)
+        for parking_spot in parking_spots:
+            booked_reservations = self.reservation_dao.get_by_parking_spot_id(
+                parking_spot.id
+            )
+            # Magic of dynamically typed languages
+            parking_spot.reservations = booked_reservations
+            result.append(parking_spot)
         
-        return self.toJSON(result)
+        return BusinessLogic.to_json(result)
 
-    def getReservationsForParkingSpot(self, parkingSpotId):
+    def get_reservations_for_parking_spot(self, parking_spot_id):
         """
         Return all the reservations for specifi parking spot.
         """
-        reservationsForParkingSpot = self.reservationDAO.getByParkingSpotId(parkingSpotId)
-        return self.toJSON(reservationsForParkingSpot)
+        reservations = self.reservation_dao.get_by_parking_spot_id(
+            parking_spot_id
+        )
+
+        return BusinessLogic.to_json(reservations)
     
-    def getReservationByUser(self, userId):
+    def get_reservation_by_user(self, user_id):
         """
         Return all the reservations for specific user.
         """
-        reservations = self.reservationDAO.getByUserId(userId)
-        return self.toJSON(reservations)
+        reservations = self.reservation_dao.get_by_user_id(user_id)
 
+        return BusinessLogic.to_json(reservations)
     
-    def insertReservation(self, reservationJSON):
-        newReservation = self.deserializeReservation(reservationJSON)
-        return self.reservationDAO.insert(newReservation)
+    def insert_reservation(self, reservation_json):
+        new_reservation = BusinessLogic.deserialize_reservation(
+            reservation_json
+        )
+
+        return self.reservation_dao.insert(new_reservation)
     
-    def getReservation(self, id):
+    def get_reservation(self, _id):
         """
         Return reservation with specific ID.
         """
-        reservation = self.reservationDAO.getById(id)
-        if not reservation is None:
-            return self.toJSON(reservation)
+        reservation = self.reservation_dao.get_by_id(_id)
+
+        if reservation is not None:
+            return BusinessLogic.to_json(reservation)
+
         return None
     
-    def insertReservationRequestValid(self, reservationJSON):
+    def insert_reservation_request_valid(self, reservation_json):
         """
-        Check if JSON request is valid by checking for all the required fields, if user exist and if reservation also exist.
+        Check if JSON request is valid by checking for all the required fields,
+        if user exist and if reservation also exist.
         Return True if every check is True, else return False. 
         """
-        if self.allParams(reservationJSON):
-            newReservation = self.deserializeReservation(reservationJSON)
-            if self.userExist(newReservation.userId) and self.parkingSpotExist(newReservation.parkingSpotId):
+        if BusinessLogic.all_params(reservation_json):
+            new_reservation = BusinessLogic.deserialize_reservation(
+                reservation_json
+            )
+
+            if (
+                self.user_exist(new_reservation.user_id)
+                and self.parking_spot_exist(new_reservation.parking_spot_id)
+            ):
                 return True
+
         return False
 
-    
-    def allParams(self, reservationJSON, required=("parkingSpotId", "userId", "dateTimeFrom", "dateTimeTo")):
+    @staticmethod
+    def all_params(
+        reservation_json,
+        required=('parking_spot_id', 'user_id', 'datetime_from', 'datetime_to'),
+    ):
         """
-        Check if all the required parameters are inside given JSON data structure.
+        Check if all the required parameters are inside given
+        JSON data structure.
         """
-        return all(param in reservationJSON for param in required)
+        return all(param in reservation_json for param in required)
 
-    def userExist(self, userId):
-            user = self.userDAO.getById(userId)
-            if not user is None:
-                return True
-            return False
-    
-    def parkingSpotExist(self, parkingSpotId):
-        parkingSpot = self.parkingSpotDAO.getById(parkingSpotId)
-        if not parkingSpot is None:
-            return True
-        return False
+    def user_exist(self, user_id):
+        user = self.user_dao.get_by_id(user_id)
 
-    def deserializeReservation(self, reservationJSON):
+        return True if user is not None else False
+
+    def parking_spot_exist(self, parking_spot_id):
+        parking_spot = self.parking_spot_dao.get_by_id(parking_spot_id)
+
+        return True if parking_spot is not None else False
+
+    @staticmethod
+    def deserialize_reservation(reservation_json):
         """
         Convert from JSON to Reservation object without ID.
         """
-        parkingSpotId = reservationJSON.get("parkingSpotId", None)
-        userId = reservationJSON.get("userId", None)
-        dateTimeFrom = reservationJSON.get("dateTimeFrom", None)
-        dateTimeTo = reservationJSON.get("dateTimeTo", None)
+        parking_spot_id = reservation_json.get('parking_spot_id', None)
+        user_id = reservation_json.get('user_id', None)
+        datetime_from = reservation_json.get('datetime_from', None)
+        datetime_to = reservation_json.get('datetime_to', None)
 
-        return Reservation(None, dateTimeFrom, dateTimeTo, userId, parkingSpotId)
-    
-    def toJSON(self, object):
-        return json.dumps({"data" : object}, default=lambda o: o.__dict__)
+        return Reservation(
+            None,
+            datetime_from,
+            datetime_to,
+            user_id,
+            parking_spot_id
+        )
 
-    def isAvailable(self, reservationJSON):
+    @staticmethod
+    def to_json(_object):
+        return json.dumps({'data': _object}, default=lambda o: o.__dict__)
+
+    def is_available(self, reservation_json):
         """
         Check if time for reservation is really available.
         """
-        newReservation = self.deserializeReservation(reservationJSON)
+        new_reservation = BusinessLogic.deserialize_reservation(
+            reservation_json
+        )
 
-        bookedReservations = self.reservationDAO.getByParkingSpotId(newReservation.parkingSpotId)
+        booked_reservations = self.reservation_dao.get_by_parking_spot_id(
+            new_reservation.parking_spot_id
+        )
 
-        for reservation in bookedReservations:
-            if self.overlap(reservation, newReservation):
+        for reservation in booked_reservations:
+            if BusinessLogic.overlap(reservation, new_reservation):
                 return False
         return True
-    
-    def overlap(self, booked, new):
+
+    @staticmethod
+    def overlap(booked, new):
         """
         Check if two Reservations overlap by time.
-        TODO: maybe encapsulate this logic into Reservation object?
         """
-        for f,s in ((booked, new), (new, booked)):
-            if (f.dateTimeFrom == s.dateTimeFrom and f.dateTimeTo == s.dateTimeTo):
+        for f, s in ((booked, new), (new, booked)):
+            if (
+                f.datetime_from == s.datetime_from
+                and f.datetime_to == s.datetime_to
+            ):
                 return True
-            for time in (f.dateTimeFrom, f.dateTimeTo):
-                if s.dateTimeFrom < time < s.dateTimeTo:
+            for time in (f.datetime_from, f.datetime_to):
+                if s.datetime_from < time < s.datetime_to:
                     return True
         return False

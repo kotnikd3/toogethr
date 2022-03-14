@@ -13,11 +13,11 @@
             </thead>
 
             <tbody>
-                <tr v-for="parkingSpot in parkingSpots" :key="parkingSpot.id">
-                    <td>{{ parkingSpot.id }}</td>
-                    <td>{{ parkingSpot.latitude }}</td>
-                    <td>{{ parkingSpot.longitude }}</td>
-                    <td><router-link :to="{name: 'Reservations', params: { id: parkingSpot.id }}" class="btn btn-primary">Check availability</router-link></td>
+                <tr v-for="parking_spot in parking_spots" :key="parking_spot.id">
+                    <td>{{ parking_spot.id }}</td>
+                    <td>{{ parking_spot.latitude }}</td>
+                    <td>{{ parking_spot.longitude }}</td>
+                    <td><router-link :to="{name: 'Reservations', params: { id: parking_spot.id }}" class="btn btn-primary">Check availability</router-link></td>
                 </tr>
             </tbody>
         </table>
@@ -28,7 +28,7 @@
 export default {
     data(){
         return{
-            parkingSpots: []
+            parking_spots: []
         }
     },
     created: function() {
@@ -38,7 +38,7 @@ export default {
         fetchItems() {
             this.axios.get('http://localhost:5000/parkingspots')
             .then(response => {
-                this.parkingSpots = response.data.data;
+                this.parking_spots = response.data.data;
             })
             .catch(function (error) {
                 console.log(error);

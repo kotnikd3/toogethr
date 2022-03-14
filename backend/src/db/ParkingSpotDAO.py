@@ -1,13 +1,13 @@
-class ParkingSpotDAO():
+class ParkingSpotDAO:
     def __init__(self, database):
-        self.TABLE_NAME = "parking_spot"
+        self.TABLE_NAME = 'parking_spot'
         self.database = database
     
-    def getById(self, id):
-        return self.database.select(self.TABLE_NAME, id)
+    def get_by_id(self, _id):
+        return self.database.select(self.TABLE_NAME, _id)
 
-    def getAll(self):
-        return self.database.select(self.TABLE_NAME, "*")
+    def get_all(self):
+        return self.database.select(self.TABLE_NAME, '*')
     
-    def insert(self, parkingSpace):
-        return self.database.insert(self.TABLE_NAME, parkingSpace)
+    def insert(self, parking_space):
+        return self.database.insert(self.TABLE_NAME, parking_space)

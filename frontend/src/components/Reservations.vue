@@ -15,10 +15,10 @@
             <tbody>
                 <tr v-for="reservation in reservations" :key="reservation.id">
                     <td>{{ reservation.id }}</td>
-                    <td>{{ reservation.dateTimeFrom | humanDateTime }}</td>
-                    <td>{{ reservation.dateTimeTo | humanDateTime }}</td>
-                    <td>{{ reservation.userId }}</td>
-                    <td>{{ reservation.parkingSpotId }}</td>
+                    <td>{{ reservation.datetime_from | humanDateTime }}</td>
+                    <td>{{ reservation.datetime_to | humanDateTime }}</td>
+                    <td>{{ reservation.user_id }}</td>
+                    <td>{{ reservation.parking_spot_id }}</td>
                 </tr>
             </tbody>
         </table>

@@ -1,9 +1,8 @@
-FROM python:3.8
+FROM python:3.8.9-buster
 # make the 'backend' folder the current working directory
 WORKDIR /backend
 COPY . .
 # install project dependencies
 RUN pip install -r requirements.txt
 
-ENTRYPOINT ["python"]
-CMD ["src/API.py"]
+CMD ["python", "src/API.py"]
